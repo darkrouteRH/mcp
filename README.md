@@ -2,11 +2,16 @@
 
 Ask what a token costs to **get out of**, from any MCP client.
 
+```
+npx darkroute-mcp
+```
+
 No key. No wallet. Nothing here can sign or spend.
 
-> Not on npm yet. Clone this repo and point your client at it, as below. When
-> `darkroute-mcp` is published the `npx` one-liner will appear here and not before,
-> because an install command that does not work is worse than none.
+> **Running that command by hand will look like it has frozen. It has not.** An MCP server talks
+> over stdin and stdout, so it starts, prints nothing, and waits for a client to speak to it. That
+> is the correct behaviour and there is nothing to see. Give the command to your MCP client and let
+> the client do the talking.
 
 ## Why this exists
 
@@ -36,17 +41,12 @@ Chains: `rh` (Robinhood Chain, 4663) and `arc` (Arc, 5042).
 
 ## Install
 
-```bash
-git clone https://github.com/darkrouteRH/mcp darkroute-mcp
-cd darkroute-mcp && npm install
-```
-
 Claude Desktop, in `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
-    "darkroute": { "command": "node", "args": ["/absolute/path/to/darkroute-mcp/src/index.js"] }
+    "darkroute": { "command": "npx", "args": ["-y", "darkroute-mcp"] }
   }
 }
 ```
@@ -54,14 +54,26 @@ Claude Desktop, in `claude_desktop_config.json`:
 Claude Code:
 
 ```bash
-claude mcp add darkroute -- node /absolute/path/to/darkroute-mcp/src/index.js
+claude mcp add darkroute -- npx -y darkroute-mcp
 ```
 
-Check it works before wiring it in:
+Then ask it something: *"is 0x… safe to buy?"*
+
+### From a clone instead
+
+If you would rather read the code before running it, which is the better instinct for anything that
+prices your money:
 
 ```bash
-node test/smoke.mjs
+git clone https://github.com/darkrouteRH/mcp darkroute-mcp
+cd darkroute-mcp && npm install
+node test/smoke.mjs          # 9 checks, end to end against the live API
+claude mcp add darkroute -- node $PWD/src/index.js
 ```
+
+`test/` ships with the repository and not with the npm package, so `node test/smoke.mjs` works from
+a clone and not from an install. The published tarball is four files: the server, the README, the
+licence and package.json.
 
 Point it somewhere else with `DARKROUTE_API`, which defaults to
 `https://app.darkroute.exchange/api/v1`.
