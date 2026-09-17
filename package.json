@@ -1,6 +1,6 @@
 {
   "name": "darkroute-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Ask DarkRoute what a token costs to trade, and whether it has a way out, from any MCP client.",
   "license": "MIT",
   "type": "module",
@@ -38,7 +38,6 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
-    "darkroute-mcp": "^0.1.0"
+    "@modelcontextprotocol/sdk": "^1.0.0"
   }
 }
