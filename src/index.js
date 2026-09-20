@@ -12,13 +12,33 @@
 // Chain, 73,499 of the 265,345 tokens with a pool have no pool that charges under 50% to leave.
 // More than a quarter. That is the fact worth handing a model, because it is the one a chart hides.
 //
+// Where a chain cannot be traded through us, the note says whose limitation that is. Until
+// 18 September 2026 it said Arc had no UniversalRouter, which was wrong: one is deployed there and
+// carries most of the chain\'s v4 swaps. We had checked only the address the contract usually sits
+// at. A tool a model quotes from has to carry the corrected reason, not the convenient one.
+//
 // Everything here is a read against the public API. No key, no wallet, nothing that can spend.
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 
+// Read the version rather than spell it out. It was written in twice, and bumping package.json to
+// 0.1.1 left both copies at 0.1.0, so the published package introduced itself to every client as
+// the previous release. A number that has to be updated in three places is a number that will be
+// wrong in at least one of them.
+const VERSION = (() => {
+  try {
+    return JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "package.json"), "utf8")).version ?? "0.0.0";
+  } catch {
+    return "0.0.0";
+  }
+})();
+
 const API = process.env.DARKROUTE_API ?? "https://app.darkroute.exchange/api/v1";
-const UA = "darkroute-mcp/0.1.0";
+const UA = `darkroute-mcp/${VERSION}`;
 const CHAINS = { rh: "Robinhood Chain", arc: "Arc" };
 const isAddress = (v) => typeof v === "string" && /^0x[0-9a-fA-F]{40}$/.test(v);
 
@@ -106,7 +126,7 @@ const TOOLS = [
   },
 ];
 
-const server = new Server({ name: "darkroute", version: "0.1.0" }, { capabilities: { tools: {} } });
+const server = new Server({ name: "darkroute", version: VERSION }, { capabilities: { tools: {} } });
 server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
 
 server.setRequestHandler(CallToolRequestSchema, async (req) => {
@@ -145,7 +165,13 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 
       if (j.chain && j.chain.tradable === false) {
         lines.push("");
-        lines.push(`Note: ${j.chain.name} has no UniversalRouter deployed, so this fill can be priced but not sent by DarkRoute.`);
+        // The reason matters and used to be stated wrongly. Repeat what the API says rather than
+        // asserting anything about the chain from here.
+        lines.push(
+          j.chain.router
+            ? `Note: DarkRoute can price this fill but not send it. A UniversalRouter is deployed on ${j.chain.name} at ${j.chain.router}; our own swap path is not wired to this chain yet. The limit is ours.`
+            : `Note: no UniversalRouter is deployed on ${j.chain.name}, so this fill can be priced and not sent.`,
+        );
       }
       return text(lines.join("\n"));
     }

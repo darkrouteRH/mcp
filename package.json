@@ -1,6 +1,6 @@
 {
   "name": "darkroute-mcp",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Ask DarkRoute what a token costs to trade, and whether it has a way out, from any MCP client.",
   "license": "MIT",
   "type": "module",

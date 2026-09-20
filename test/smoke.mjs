@@ -49,7 +49,10 @@ console.log("\n--- token_exit_cost, Arc ---");
 r = await call("token_exit_cost", { address: "0x01d776dc060f5a0a7296ac60a2222c992e284f01", chain: "arc" });
 console.log(r.content[0].text.split("\n").slice(0, 3).join("\n"));
 ok(/Arc/.test(r.content[0].text), "Arc is named");
-ok(/no UniversalRouter/.test(r.content[0].text), "Arc says it cannot send the fill");
+ok(/price this fill but not send it|priced and not sent/i.test(r.content[0].text), "Arc says the fill can be priced and not sent");
+// The reason has to be attributed correctly. It used to say Arc had no router, which was false.
+ok(/0x4fca4a51ab4f23a7447b3284fbd7d73289a89fb1/.test(r.content[0].text), "Arc's real router is named rather than denied");
+ok(/limit is ours|our own swap path|not wired/i.test(r.content[0].text), "the missing half is attributed to us, not to the chain");
 
 console.log("\n--- swap_quote ---");
 r = await call("swap_quote", { address: "0xebB4C5B97E4117e30EC82ce025E6f21dded05436", buy: 0.01 });

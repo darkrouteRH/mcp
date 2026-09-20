@@ -91,8 +91,9 @@ ordinary token on these chains. The question is whether a way out exists at all.
 nothing was read, rather than a reassuring number. The failure mode of a tool a model quotes from
 has to be silence.
 
-**It cannot trade.** Read-only, and on Arc we say so twice: Arc has no UniversalRouter deployed, so
-a fill there can be priced and not sent.
+**It cannot trade.** Read-only everywhere. Where DarkRoute itself cannot send a fill, the tool says
+whose limitation that is: on Arc a UniversalRouter is deployed and carries most of the chain's v4
+swaps, and it is our own swap path that is not wired to that chain yet.
 
 ## Where the numbers come from
 
